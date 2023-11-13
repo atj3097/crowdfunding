@@ -15,6 +15,9 @@ contract CrowdFundManagerERC20 {
         mapping (address => uint256) donations;
     }
 
+    mapping(uint256 => Fundraiser) public fundraisers;
+    uint256 public fundraiserId;
+
 
 
 }
