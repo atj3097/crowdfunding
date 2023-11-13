@@ -1,17 +1,9 @@
-## Foundry
+## Crowdfunding ERC20 contract
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
-
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
+Your contract should have a createFundraiser() function with a goal and a deadline as arguments. Donators can donate() to a given fundraiserId.
+If the goal is reached before the deadline, the wallet that called createFundraiser() Can withdraw() all the funds associated with that campaign.
+Otherwise, if the deadline passes without reaching the goal, the donators can withdraw their donation.
+Build a contract that supports Ether and another that supports ERC20 tokens.
 
 ## Usage
 
