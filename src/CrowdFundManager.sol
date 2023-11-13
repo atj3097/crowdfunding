@@ -16,6 +16,10 @@ what if the same address donates to multiple different campaigns?
 
 contract CrowdFundManager {
 
+    event FundraiserCreated(uint256 fundraiserId, string name, uint256 goalAmount, uint256 deadline, address starter, address token);
+    event DonationReceived(uint256 fundraiserId, address donator, uint256 amount);
+    event DonationWithdrawn(uint256 fundraiserId, address donator, uint256 amount);
+
     struct Fundraiser {
         uint256 fundraiserId;
         string name;
@@ -47,6 +51,7 @@ contract CrowdFundManager {
         Donator memory donator = Donator(fundraiserId, msg.sender, 0);
         fundraisers[fundraiserId] = Fundraiser(fundraiserId, name, goalAmount, 0, deadline, msg.sender, token, [donator]);
         fundraiserId++;
+        emit FundraiserCreated(fundraiserId, name, goalAmount, deadline, msg.sender, token);
     }
 
     function donate(uint256 _fundraiserId) payable {
@@ -55,6 +60,7 @@ contract CrowdFundManager {
         Fundraiser storage fundraiser = fundraisers[_fundraiserId];
         totalEthDeposits += msg.value;
         ethDeposits[msg.sender] = Donator(_fundraiserId, msg.sender, msg.value);
+        emit DonationReceived(_fundraiserId, msg.sender, msg.value);
     }
 
     function withdraw(uint256 _fundraiserId) {
@@ -64,6 +70,8 @@ contract CrowdFundManager {
             (bool success, ) = recipient.call{value: fundraisers[_fundraiserId].currentAmount}("");
             require(success, "Transfer failed.");
             totalEthDeposits -= fundraisers[_fundraiserId].currentAmount;
+            fundraisers[_fundraiserId].currentAmount = 0;
+            emit DonationWithdrawn(_fundraiserId, msg.sender, fundraisers[_fundraiserId].currentAmount);
         } else {
             if (isDonator(_fundraiserId, msg.sender)) {
                 address payable recipient = payable(msg.sender);
@@ -71,24 +79,20 @@ contract CrowdFundManager {
                 require(success, "Transfer failed.");
                 totalEthDeposits -= ethDeposits[msg.sender].amount;
                 ethDeposits[msg.sender] = 0;
+                emit DonationWithdrawn(_fundraiserId, msg.sender, ethDeposits[msg.sender].amount);
             }
 
         }
     }
 
-    function isDonator(uint256 _fundraiserId, address potentialDonator) public returns(bool)
+    function isDonator(uint256 _fundraiserId, address potentialDonator) public returns(bool) {
         for (uint i = 0; i < fundraisers[_fundraiserId].donators.length; i++) {
             if (fundraisers[_fundraiserId].donators[i] == potentialDonator) {
                 return true;
             }
-            else {
-                return false;
-            }
         }
+
+        return false;
     }
-
-
-
-
 
 }
