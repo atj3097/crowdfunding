@@ -18,6 +18,12 @@ contract CrowdFundManagerERC20 {
     mapping(uint256 => Fundraiser) public fundraisers;
     uint256 public fundraiserId;
 
+    event FundraiserCreated(uint256 indexed fundraiserId, string name, uint256 goalAmount, uint256 deadline, address starter, address token);
+    event DonationReceived(uint256 indexed fundraiserId, address donator, uint256 amount);
+    event DonationWithdrawn(uint256 indexed fundraiserId, address donator, uint256 amount);
+
+
+
 
 
 }
