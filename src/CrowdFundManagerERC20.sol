@@ -36,6 +36,18 @@ contract CrowdFundManagerERC20 {
         fundraiserId++;
     }
 
+function donate(uint256 _fundraiserId, uint256 _amount) public {
+        require(_amount > 0, "Donation must be greater than 0");
+        require(fundraisers[_fundraiserId].deadline > block.timestamp, "Deadline has passed");
+
+        Fundraiser storage fundraiser = fundraisers[_fundraiserId];
+        fundraiser.currentAmount += _amount;
+        fundraiser.donations[msg.sender] += _amount;
+        fundraiser.token.transferFrom(msg.sender, address(this), _amount);
+
+        emit DonationReceived(_fundraiserId, msg.sender, _amount);
+    }
+
 
 
 
