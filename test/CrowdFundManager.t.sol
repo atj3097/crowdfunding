@@ -19,13 +19,15 @@ contract CrowdFundManagerTest is Test {
     }
 
     CrowdFundManager crowdFundManager;
+    uint256 fundraiserId;
 
     function setUp() public {
         crowdFundManager = new CrowdFundManager();
+        crowdFundManager.createFundraiser("Test Fundraiser", 100, block.timestamp + 1000, address(0x1));
+
     }
 
     function testFundraiserCreation() public {
-        crowdFundManager.createFundraiser("Test Fundraiser", 100, block.timestamp + 1000, address(0x1));
         (uint256 fundraiserId,
             string memory name,
             uint256 goalAmount,
@@ -38,6 +40,18 @@ contract CrowdFundManagerTest is Test {
         assertEq(deadline, block.timestamp + 1000);
         assertEq(starter, address(this));
         assertEq(token, address(0x1));
+    }
+
+    function testDonation() public {
+        (uint256 fundraiserId,
+            string memory name,
+            uint256 goalAmount,
+            uint256 currentAmount,
+            uint256 deadline,
+            address starter, address token) = crowdFundManager.fundraisers(0);
+
+        crowdFundManager.donate{value: 50}(fundraiserId);
+        assertEq(crowdFundManager.fundraisers(0).currentAmount, 50);
     }
 
 
