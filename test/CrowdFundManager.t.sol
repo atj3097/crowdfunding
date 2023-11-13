@@ -51,7 +51,20 @@ contract CrowdFundManagerTest is Test {
             address starter, address token) = crowdFundManager.fundraisers(0);
 
         crowdFundManager.donate{value: 50}(fundraiserId);
-        assertEq(crowdFundManager.fundraisers(0).currentAmount, 50);
+        assertEq(currentAmount, 50);
+    }
+
+    function testWithdraw() public {
+        (uint256 fundraiserId,
+            string memory name,
+            uint256 goalAmount,
+            uint256 currentAmount,
+            uint256 deadline,
+            address starter, address token) = crowdFundManager.fundraisers(0);
+
+        crowdFundManager.donate{value: 100}(fundraiserId);
+        crowdFundManager.withdraw(fundraiserId);
+        assertEq(currentAmount, 0);
     }
 
 
