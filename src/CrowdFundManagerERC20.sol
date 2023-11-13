@@ -22,6 +22,20 @@ contract CrowdFundManagerERC20 {
     event DonationReceived(uint256 indexed fundraiserId, address donator, uint256 amount);
     event DonationWithdrawn(uint256 indexed fundraiserId, address donator, uint256 amount);
 
+    function createFundraiser(string memory _name, uint256 _goalAmount, uint256 _deadline, IERC20 _token) public {
+        require(_deadline > block.timestamp, "Deadline must be in the future");
+        Fundraiser storage newFundraiser = fundraisers[fundraiserId];
+        newFundraiser.fundraiserId = fundraiserId;
+        newFundraiser.name = _name;
+        newFundraiser.goalAmount = _goalAmount;
+        newFundraiser.deadline = _deadline;
+        newFundraiser.starter = msg.sender;
+        newFundraiser.token = _token;
+
+        emit FundraiserCreated(fundraiserId, _name, _goalAmount, _deadline, msg.sender, address(_token));
+        fundraiserId++;
+    }
+
 
 
 
