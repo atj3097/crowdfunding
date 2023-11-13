@@ -70,17 +70,6 @@ contract CrowdFundManagerERC20 {
         }
     }
 
-    function getFundraiser(uint256 _fundraiserId) public view returns (Fundraiser memory) {
-        return fundraisers[_fundraiserId];
-    }
-
-    function getFundraiserCount() public view returns (uint256) {
-        return fundraiserId;
-    }
-
-    function getDonation(uint256 _fundraiserId, address _donator) public view returns (uint256) {
-        return fundraisers[_fundraiserId].donations[_donator];
-    }
 
     function isDonator(uint256 _fundraiserId, address _donator) public view returns (bool) {
         return fundraisers[_fundraiserId].donations[_donator] > 0;

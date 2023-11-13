@@ -24,5 +24,16 @@ contract CrowdFundManagerTest is Test {
         crowdFundManager = new CrowdFundManager();
     }
 
+    function testFundraiserCreation() {
+        crowdFundManager.createFundraiser("Test Fundraiser", 100, block.timestamp + 1000, address(0x1));
+        Fundraiser memory fundraiser = crowdFundManager.fundraisers(0);
+        assertEq(fundraiser.fundraiserId, 0);
+        assertEq(fundraiser.name, "Test Fundraiser");
+        assertEq(fundraiser.goalAmount, 100);
+        assertEq(fundraiser.deadline, block.timestamp + 1000);
+        assertEq(fundraiser.starter, address(this));
+        assertEq(fundraiser.token, address(0x1));
+    }
+
 
 }
