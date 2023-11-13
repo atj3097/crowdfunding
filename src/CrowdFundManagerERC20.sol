@@ -36,7 +36,7 @@ contract CrowdFundManagerERC20 {
         fundraiserId++;
     }
 
-function donate(uint256 _fundraiserId, uint256 _amount) public {
+    function donate(uint256 _fundraiserId, uint256 _amount) public {
         require(_amount > 0, "Donation must be greater than 0");
         require(fundraisers[_fundraiserId].deadline > block.timestamp, "Deadline has passed");
 
@@ -46,6 +46,28 @@ function donate(uint256 _fundraiserId, uint256 _amount) public {
         fundraiser.token.transferFrom(msg.sender, address(this), _amount);
 
         emit DonationReceived(_fundraiserId, msg.sender, _amount);
+    }
+
+    function withdraw(uint256 _fundraiserId) public {
+        Fundraiser storage fundraiser = fundraisers[_fundraiserId];
+
+        if (block.timestamp <= fundraiser.deadline && fundraiser.currentAmount >= fundraiser.goalAmount) {
+            require(msg.sender == fundraiser.starter, "Only starter can withdraw");
+
+            uint256 amount = fundraiser.currentAmount;
+            fundraiser.currentAmount = 0;
+            fundraiser.token.transfer(fundraiser.starter, amount);
+
+            emit DonationWithdrawn(_fundraiserId, msg.sender, amount);
+        } else if (block.timestamp > fundraiser.deadline) {
+            require(fundraiser.donations[msg.sender] > 0, "Only donators can withdraw");
+
+            uint256 amount = fundraiser.donations[msg.sender];
+            fundraiser.donations[msg.sender] = 0;
+            fundraiser.token.transfer(msg.sender, amount);
+
+            emit DonationWithdrawn(_fundraiserId, msg.sender, amount);
+        }
     }
 
 
