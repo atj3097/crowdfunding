@@ -41,7 +41,7 @@ contract CrowdFundManager {
     mapping (address => Donator) public ethDonations;
 
     mapping(uint256 => Fundraiser) public fundraisers;
-    uint256 public fundraiserId;
+    uint256 public fundraiserId = 0;
 
     function createFundraiser(string memory name,
         uint256 goalAmount,
@@ -49,17 +49,18 @@ contract CrowdFundManager {
         address token) {
         require(deadline > block.timestamp, "deadline must be in the future");
         Donator memory donator = Donator(fundraiserId, msg.sender, 0);
-        fundraisers[fundraiserId] = Fundraiser(fundraiserId, name, goalAmount, 0, deadline, msg.sender, token, [donator]);
+        Fundraiser newFundraiser = Fundraiser(fundraiserId, name, goalAmount, 0, deadline, msg.sender, token, [donator]);
+        fundraisers[fundraiserId] = newFundraiser;
         fundraiserId++;
         emit FundraiserCreated(fundraiserId, name, goalAmount, deadline, msg.sender, token);
     }
 
     function donate(uint256 _fundraiserId) payable {
         require(msg.value > 0, "donation must be greater than 0");
-        require(fundraisers[_fundraiserId].deadline < block.timestamp, "deadline has passed");
+        require(fundraisers[_fundraiserId].deadline > block.timestamp, "deadline has passed");
         Fundraiser storage fundraiser = fundraisers[_fundraiserId];
         totalEthDeposits += msg.value;
-        ethDeposits[msg.sender] = Donator(_fundraiserId, msg.sender, msg.value);
+        ethDonations[msg.sender] = Donator(_fundraiserId, msg.sender, msg.value);
         emit DonationReceived(_fundraiserId, msg.sender, msg.value);
     }
 
@@ -78,7 +79,7 @@ contract CrowdFundManager {
                 (bool success, ) = recipient.call{value: ethDeposits[msg.sender].amount}("");
                 require(success, "Transfer failed.");
                 totalEthDeposits -= ethDeposits[msg.sender].amount;
-                ethDeposits[msg.sender] = 0;
+                ethDonations[msg.sender].amount = 0;
                 emit DonationWithdrawn(_fundraiserId, msg.sender, ethDeposits[msg.sender].amount);
             }
 
