@@ -23,7 +23,8 @@ contract CrowdFundManagerTest is Test {
 
     function setUp() public {
         crowdFundManager = new CrowdFundManager();
-        crowdFundManager.createFundraiser("Test Fundraiser", 100, block.timestamp + 1000, address(0x1));
+        vm.prank(address(0x1));
+        crowdFundManager.createFundraiser("Test Fundraiser", 100, block.timestamp + 1000, address(this));
 
     }
 
@@ -55,17 +56,24 @@ contract CrowdFundManagerTest is Test {
     }
 
     function testWithdraw() public {
-        (uint256 fundraiserId,
-            string memory name,
-            uint256 goalAmount,
-            uint256 currentAmount,
-            uint256 deadline,
-            address starter, address token) = crowdFundManager.fundraisers(0);
+        // Fetch fundraiserId and starter before donation
+        (uint256 fundraiserId,, , , , address starter, ) = crowdFundManager.fundraisers(0);
 
+        // Make a donation
         crowdFundManager.donate{value: 100}(fundraiserId);
-        crowdFundManager.withdraw(fundraiserId);
-        assertEq(currentAmount, 0);
+
+        // Warp time to exceed the deadline
+        vm.warp(block.timestamp + 1001);
+
+        // Impersonate the starter and withdraw
+        bool success = crowdFundManager.withdraw(fundraiserId);
+        assertTrue(success);
+
+        // Fetch the updated current amount
+        (, , , uint256 newCurrentAmount, , , ) = crowdFundManager.fundraisers(0);
+        assertEq(newCurrentAmount, 0);
     }
+
 
 
 }
