@@ -46,7 +46,7 @@ contract CrowdFundManager {
         emit DonationReceived(_fundraiserId, msg.sender, msg.value);
     }
 
-    function withdraw(uint256 _fundraiserId) public {
+    function withdraw(uint256 _fundraiserId) public returns(bool) {
         Fundraiser storage fundraiser = fundraisers[_fundraiserId];
 
         if (block.timestamp <= fundraiser.deadline && fundraiser.currentAmount >= fundraiser.goalAmount) {
@@ -57,6 +57,8 @@ contract CrowdFundManager {
             payable(fundraiser.starter).transfer(amount);
 
             emit DonationWithdrawn(_fundraiserId, msg.sender, amount);
+            return true;
+
         } else if (block.timestamp > fundraiser.deadline) {
             uint256 donorAmount = fundraiser.donations[msg.sender];
             require(donorAmount > 0, "No donations to withdraw");
@@ -65,7 +67,9 @@ contract CrowdFundManager {
             payable(msg.sender).transfer(donorAmount);
 
             emit DonationWithdrawn(_fundraiserId, msg.sender, donorAmount);
+            return true;
         }
+        return false;
     }
 
     function isDonator(uint256 _fundraiserId, address _potentialDonator) public view returns(bool) {
